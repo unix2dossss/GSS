@@ -72,7 +72,11 @@ class Streamer:
         self.server = ThreadingHTTPServer((host, port), Handler)
         print(f"[STREAM] http://{host}:{port}  (open / in browser)")
         import threading
-        threading.Thread(target=self.server.serve_forever, daemon=False).start()
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
 
     def on_frame(self, frame):
         self.frame = frame
+
+    def stop(self):
+        self.server.shutdown()
+        self.server.server_close()
