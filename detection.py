@@ -3,6 +3,7 @@ from notification import notify, send_photo
 import numpy as np
 import cv2
 import os
+import subprocess
 import time
 
 class Detector:
