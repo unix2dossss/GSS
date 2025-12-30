@@ -80,6 +80,12 @@ class Detector:
             print("Significant movement detected!")
             print("recording started")
             notify("Motion detected! Recording in progress.")
+
+            subprocess.Popen([
+               "aplay",
+               "sounds/alert.wav"
+            ])
+
             self.setup_recording()
         
         if self._recording_in_progress:
