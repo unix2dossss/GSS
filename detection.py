@@ -6,7 +6,7 @@ import os
 import time
 
 class Detector:
-    def __init__(self, pixel_diff_thresh=25, area_thresh=1000):
+    def __init__(self, pixel_diff_thresh=10, area_thresh=8000):
         self._prev_frame = None
         self._frame_count = 0
         self.MOVEMENT_THRESHOLD = 0.5
@@ -20,6 +20,8 @@ class Detector:
         self._frame_recording_count = 0
         self._out = None
 
+        self._timestamp = None
+
     def preprocess(self, frame, first=False):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (21, 21), 0)
@@ -32,12 +34,14 @@ class Detector:
     def setup_recording(self):
         self._recording_in_progress = True
 
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        # fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+
 
         now = datetime.now()
-        timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
+        self._timestamp = now.strftime("%Y-%m-%d_%H-%M-%S")
 
-        self._out = cv2.VideoWriter(f'{timestamp}.avi', fourcc, 30, (640, 480))
+        self._out = cv2.VideoWriter(f'/home/unix2dos/GarageSecuritySystem/garage_recordings/{self._timestamp}.mp4', fourcc, 30, (640, 480))
 
     def cleanup_recording(self):
             self._detected_motion = False
@@ -52,9 +56,10 @@ class Detector:
         os.makedirs("snapshots", exist_ok=True)
 
         cv2.imwrite(snapshot_path, frame)
-        send_photo(snapshot_path, caption="Motion detected! Snapshot taken.")
+        send_photo(snapshot_path, caption="Garage Activity Snapshot.")
 
     def on_frame(self, frame):
+        self._frame_count += 1
         if self._prev_frame is None:
             self.preprocess(frame, first=True)
             return
@@ -68,12 +73,11 @@ class Detector:
 
         motion_area = int(np.sum(mask > 0))
 
-        if motion_area > self.area_thresh:
+        if motion_area > self.area_thresh and self._frame_count > 10*30:
             self._detected_motion = True
-            print("Significant movement detected!")
-            print("Changed pixels:", motion_area)
 
         if self._detected_motion and not self._recording_in_progress:
+            print("Significant movement detected!")
             print("recording started")
             notify("Motion detected! Recording in progress.")
             self.setup_recording()
@@ -88,10 +92,11 @@ class Detector:
 
         self._prev_frame = current_frame
 
-        cv2.imshow("Preview", current_frame)
+        # cv2.imshow("Preview", current_frame)
 
         if self._frame_recording_count == 60*30:
             print("recording stopped")
+            notify(f'Recording complete. Motion event saved. Check http://100.115.208.89:8088/{self._timestamp}.mp4')
             self.cleanup_recording()
 
         cv2.waitKey(1)
