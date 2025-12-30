@@ -1,6 +1,9 @@
 from datetime import datetime
+from notification import notify, send_photo
 import numpy as np
 import cv2
+import os
+import time
 
 class Detector:
     def __init__(self, pixel_diff_thresh=25, area_thresh=1000):
@@ -44,6 +47,13 @@ class Detector:
             self._out.release()
             self._out = None
 
+    def send_snapshot_notif(self, frame):
+        snapshot_path = f"snapshots/motion_{int(time.time())}.jpg"
+        os.makedirs("snapshots", exist_ok=True)
+
+        cv2.imwrite(snapshot_path, frame)
+        send_photo(snapshot_path, caption="Motion detected! Snapshot taken.")
+
     def on_frame(self, frame):
         if self._prev_frame is None:
             self.preprocess(frame, first=True)
@@ -65,17 +75,22 @@ class Detector:
 
         if self._detected_motion and not self._recording_in_progress:
             print("recording started")
+            notify("Motion detected! Recording in progress.")
             self.setup_recording()
         
         if self._recording_in_progress:
             self._out.write(frame)
+
+            if self._frame_recording_count == 30*30:
+                self.send_snapshot_notif(frame)
+
             self._frame_recording_count += 1
 
         self._prev_frame = current_frame
 
         cv2.imshow("Preview", current_frame)
 
-        if self._frame_recording_count==10*30:
+        if self._frame_recording_count == 60*30:
             print("recording stopped")
             self.cleanup_recording()
 
