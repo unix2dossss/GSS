@@ -3,6 +3,7 @@ import time
 import socket
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
+from notification import notify
 
 class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
     daemon_threads = True
@@ -71,6 +72,8 @@ class Streamer:
 
         self.server = ThreadingHTTPServer((host, port), Handler)
         print(f"[STREAM] http://{host}:{port}  (open / in browser)")
+        notify(f"[STREAM RUNNING] http://100.115.208.89:{port}  (open / in browser)")
+
         import threading
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
 
