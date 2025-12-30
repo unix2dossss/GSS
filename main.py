@@ -13,4 +13,4 @@ streamer = Streamer()
 bus.subscribe("frame", detector.on_frame)
 bus.subscribe("frame", streamer.on_frame)
 
-run(bus, 0)
+run(bus, 2)
