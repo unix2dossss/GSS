@@ -101,7 +101,7 @@ class Detector:
 
         # cv2.imshow("Preview", current_frame)
 
-        if self._frame_recording_count == 60*30:
+        if self._frame_recording_count == 300*30:
             print("recording stopped")
             notify(f'Recording complete. Motion event saved. Check http://100.115.208.89:8088/{self._timestamp}.mp4')
             self.cleanup_recording()
