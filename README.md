@@ -1,3 +1,7 @@
+<p align="left">
+    <img src="./readme assets/logo.png" width="225" />
+</p>
+
 ## GSS: Garage Security System
 
 A small, self-hosted security system built on a Linux server using Python.
