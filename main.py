@@ -14,6 +14,6 @@ bus.subscribe("frame", detector.on_frame)
 bus.subscribe("frame", streamer.on_frame)
 
 try:
-    run(bus, 2)
+    run(bus, 0)
 finally:
     streamer.stop()

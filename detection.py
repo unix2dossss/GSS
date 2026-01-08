@@ -5,6 +5,10 @@ import cv2
 import os
 import subprocess
 import time
+from dotenv import load_dotenv
+
+load_dotenv()
+CADDY_IP = os.getenv("CADDY_IP")
 
 class Detector:
     def __init__(self, pixel_diff_thresh=10, area_thresh=8000):
@@ -103,7 +107,7 @@ class Detector:
 
         if self._frame_recording_count == 300*30:
             print("recording stopped")
-            notify(f'Recording complete. Motion event saved. Check http://100.115.208.89:8088/{self._timestamp}.mp4')
+            notify(f'Recording complete. Motion event saved. Check http://{CADDY_IP}/{self._timestamp}.mp4')
             self.cleanup_recording()
 
         cv2.waitKey(1)
